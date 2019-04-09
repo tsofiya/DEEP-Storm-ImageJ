@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 public class viewNetwork extends JFrame {
     private JTextField textFieldCsvPath;
     private JButton buttonImportCsv;
-    private JTextField textFieldJasonPath;
+    private JTextField textFieldModelPath;
     private JButton buttonImortJason;
     public JButton runMyNetButton;
     private JPanel rootPanel;
@@ -40,7 +40,7 @@ public class viewNetwork extends JFrame {
                 JFileChooser chooser = new JFileChooser();
                 if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 
-                    textFieldJasonPath.setText(chooser.getSelectedFile().toString());
+                    textFieldModelPath.setText(chooser.getSelectedFile().toString());
                 }
             }
         });
@@ -62,9 +62,9 @@ public class viewNetwork extends JFrame {
         return textFieldCsvPath.getText();
     }
 
-    public String getJSonPath(){ return textFieldJasonPath.getText(); }
+    public String getModelPath(){ return textFieldModelPath.getText(); }
 
-    public String getWeightsPath(){return textFieldLoadWeights.getText();}
+    //public String getWeightsPath(){return textFieldLoadWeights.getText();}
 
 
     public static void main(String[] args) {

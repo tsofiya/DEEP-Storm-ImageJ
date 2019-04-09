@@ -10,6 +10,7 @@ import net.imagej.*;
 
 import java.util.ArrayList;
 
+import net.imagej.tensorflow.TensorFlowService;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
@@ -19,7 +20,6 @@ import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.springframework.core.io.ClassPathResource;
 
 
 import javax.swing.*;
@@ -31,6 +31,9 @@ import java.awt.image.BufferedImage;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import org.scijava.io.location.FileLocation;
+import org.tensorflow.SavedModelBundle;
+
 
 /**
  * A very simple plugin.
@@ -62,7 +65,11 @@ public class NetworkDemo implements Command, ActionListener {
     @Parameter(type = ItemIO.OUTPUT)
     private ArrayList<BufferedImage> output;
 
+    @Parameter
+    private TensorFlowService tensorFlowService;
+
     private viewNetwork viewNetwork = new viewNetwork();
+    private SavedModelBundle model;
 
 
     //When an image is loaded, run your network
@@ -76,27 +83,35 @@ public class NetworkDemo implements Command, ActionListener {
     public static void main(final String... args) {
         // Launch ImageJ as usual.
         final ImageJ ij = new ImageJ();
-        ij.launch(args);
+        ij.launch();
+        final String imagePath = "D:\\repositories\\Deep-STORM\\demo 1 - Simulated Microtubules\\ArtificialDataset_demo1.tif";
+        try {
+            final Object dataset = ij.io().open(imagePath);
+            ij.ui().show(dataset);
+        }catch (Exception e){
+            System.out.println(e);
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (viewNetwork.getJSonPath()==null || viewNetwork.getCsvPath()==null){
+        if (viewNetwork.getModelPath()==null || viewNetwork.getCsvPath()==null){
             JOptionPane.showMessageDialog(null, "Please enter files before pressing run my net button",
                     "warning",JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         viewNetwork.setVisible(false);
-        ComputationGraphConfiguration modelConfig;
-        ComputationGraph model;
         try {
             //opening the saved model.
-            String path= viewNetwork.getJSonPath();
+            String path= viewNetwork.getModelPath();
 
-            String modelJson = viewNetwork.getJSonPath();
-            String modelWeights = viewNetwork.getWeightsPath();
-            model = KerasModelImport.importKerasModelAndWeights(modelJson, modelWeights);
+            String modelPath = viewNetwork.getModelPath();
+//            String modelWeights = viewNetwork.getWeightsPath();
+            //model = KerasModelImport.importKerasModelAndWeights(modelJson, modelWeights);
+
+            FileLocation location= new FileLocation(modelPath);
+            model= tensorFlowService.loadModel(location, "saved_model.pb");
         } catch (Exception exc) {
             JOptionPane.showMessageDialog(null, "Something went wrong trying to open your model.\n" +
                             "Are you sure you chose the right file?",
