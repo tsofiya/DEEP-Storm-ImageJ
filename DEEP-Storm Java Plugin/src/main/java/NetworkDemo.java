@@ -155,6 +155,21 @@ public class NetworkDemo implements Command, ActionListener {
         images= Utilities.normalizeImage(images,meanStd[0], meanStd[1]);
 
         INDArray modelData= Utilities.createModelData(images);
+        INDArray[] prediction= model.output(modelData);
+
+        int height=images.get(0).numRows(), width=images.get(0).numCols();
+        ArrayList<BufferedImage> pImages= Utilities.nd4jToImage(prediction);
+
+        try{
+            Utilities.SaveImagesTiff(pImages, "DeppSTORMedImage.tiff");
+        }
+        catch (Exception exc){
+            System.out.println("Could not save images.");
+        }
+
+        DisplayImage(pImages);
+
+        // output= pImages;
 
     }
 
